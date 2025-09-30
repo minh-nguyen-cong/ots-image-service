@@ -54,7 +54,8 @@
 		</dependency>
 		<dependency>
 			<groupId>com.google.cloud</groupId>
-			<artifactId>google-cloud-eventarc-publishing</artifactId>
+			<artifactId>spring-cloud-gcp-starter</artifactId>
+			<version>7.3.1</version>
 		</dependency>
 
 		<dependency>
@@ -64,9 +65,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.mysql</groupId>
-			<artifactId>mysql-connector-j</artifactId>
-			<scope>runtime</scope>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.33</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -97,13 +98,6 @@
 			<version>0.11.5</version>
 			<scope>runtime</scope>
 		</dependency>
-
-		<!-- CloudEvents Protobuf for Eventarc -->
-		<dependency>
-			<groupId>io.cloudevents</groupId>
-			<artifactId>cloudevents-protobuf</artifactId>
-			<version>2.5.0</version>
-		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
@@ -118,13 +112,6 @@
 				<groupId>com.google.cloud</groupId>
 				<artifactId>spring-cloud-gcp-dependencies</artifactId>
 				<version>${spring-cloud-gcp.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.google.cloud</groupId>
-				<artifactId>google-cloud-bom</artifactId>
-				<version>26.40.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
