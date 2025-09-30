@@ -7,7 +7,7 @@ substitutions:
   _DB_USERNAME_SECRET: cdc-online-thumbnail-service-db-username
   _DB_PASSWORD_SECRET: cdc-online-thumbnail-service-db-password
   _JWT_SECRET_NAME: cdc-online-thumbnail-service-jwt-secret-prod
-  _GCS_RAW_IMAGES_BUCKET_NAME: cdc-ots-raw-images
+  _GCS_RAW_IMAGES_BUCKET_NAME: cdc-online-thumbnail-service-bucket-raw-images
   _DB_MAX_POOL_SIZE: "5"
 
 steps:
