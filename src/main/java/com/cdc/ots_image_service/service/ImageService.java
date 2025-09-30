@@ -63,11 +63,11 @@ public class ImageService {
         return savedImage;
     }
 
-    public List<Image> getAllImages() {
-        return imageRepository.findAll();
+    public List<Image> getImagesByUploader(String uploaderEmail) {
+        return imageRepository.findByUploaderEmail(uploaderEmail);
     }
-
-    public Optional<Image> getImageById(Long id) {
-        return imageRepository.findById(id);
+    
+    public Optional<Image> getImageByIdAndUploader(Long id, String uploaderEmail) {
+        return imageRepository.findByIdAndUploaderEmail(id, uploaderEmail);
     }
 }

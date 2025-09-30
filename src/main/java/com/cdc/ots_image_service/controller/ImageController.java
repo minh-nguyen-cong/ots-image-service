@@ -24,20 +24,20 @@ public class ImageController {
     @PostMapping("/upload")
     public ResponseEntity<Image> uploadImage(@RequestParam("file") MultipartFile file,
                                              @AuthenticationPrincipal UserDetails userDetails) throws IOException {
-        // The userDetails.getUsername() will contain the user's email from the JWT
         Image savedImage = imageService.uploadImage(file, userDetails.getUsername());
         return ResponseEntity.ok(savedImage);
     }
 
     @GetMapping
-    public ResponseEntity<List<Image>> getAllImages() {
-        List<Image> images = imageService.getAllImages();
+    public ResponseEntity<List<Image>> getAllImagesForUser(@AuthenticationPrincipal UserDetails userDetails) {
+        List<Image> images = imageService.getImagesByUploader(userDetails.getUsername());
         return ResponseEntity.ok(images);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Image> getImageById(@PathVariable Long id) {
-        return imageService.getImageById(id)
+    public ResponseEntity<Image> getImageById(@PathVariable Long id,
+                                            @AuthenticationPrincipal UserDetails userDetails) {
+        return imageService.getImageByIdAndUploader(id, userDetails.getUsername())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
