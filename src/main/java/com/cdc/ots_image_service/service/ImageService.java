@@ -49,7 +49,16 @@ public class ImageService {
 
         Image savedImage = imageRepository.save(image);
 
-        // Step 4 is now handled by the Eventarc trigger listening to GCS.
+        // 4. Publish a CloudEvent to Eventarc to trigger the thumbnail worker
+        // CloudEvent event = CloudEventBuilder.v1()
+        //         .withId(UUID.randomUUID().toString())
+        //         .withSource(URI.create("image-service"))
+        //         .withType("com.cdc.ots.image.uploaded")
+        //         .withDataContentType("application/json")
+        //         .withData(savedImage.getId().toString().getBytes())
+        //         .build();
+
+        // eventarcMessageSender.send(event);
 
         return savedImage;
     }
