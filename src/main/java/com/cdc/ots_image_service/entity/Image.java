@@ -1,55 +1,41 @@
 package com.cdc.ots_image_service.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "images")
 public class Image {
 
+    public enum ThumbnailStatus {
+        PENDING, PROCESSING, DONE, ERROR
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String fileName;
-
-    @Column(nullable = false)
     private Long fileSize;
-
-    @Column(nullable = false)
     private String gcsPath;
-
-    @Column(nullable = false)
     private String uploaderEmail;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private ThumbnailStatus thumbnailStatus;
 
     private String thumbnailUrl;
 
+    @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    public enum ThumbnailStatus {
-        PENDING,
-        PROCESSING,
-        DONE,
-        ERROR
-    }
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
     // Getters and Setters
+
     public Long getId() {
         return id;
     }

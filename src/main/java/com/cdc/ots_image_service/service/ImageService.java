@@ -6,12 +6,13 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -23,42 +24,70 @@ public class ImageService {
     @Value("${gcs.bucket.raw-images}")
     private String rawImagesBucket;
 
+    @Value("${gcs.bucket.thumbnails}")
+    private String thumbnailsBucket;
+
     public ImageService(ImageRepository imageRepository, Storage storage) {
         this.imageRepository = imageRepository;
         this.storage = storage;
     }
 
-    public Image uploadImage(MultipartFile file, String uploaderEmail) throws IOException {
-        // 1. Generate a unique file name to avoid collisions
-        String uniqueFileName = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+    public List<Image> getImagesByUser(String email) {
+        return imageRepository.findAllByUploaderEmail(email);
+    }
 
-        // 2. Upload to Google Cloud Storage
-        BlobId blobId = BlobId.of(rawImagesBucket, uniqueFileName);
-        BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
-                .setContentType(file.getContentType())
-                .build();
+    public Image uploadImage(MultipartFile file, String email) throws IOException {
+        String gcsPath = UUID.randomUUID() + "-" + file.getOriginalFilename();
+
+        BlobId blobId = BlobId.of(rawImagesBucket, gcsPath);
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(file.getContentType()).build();
         storage.create(blobInfo, file.getBytes());
 
-        // 3. Create and save metadata to Cloud SQL
         Image image = new Image();
         image.setFileName(file.getOriginalFilename());
         image.setFileSize(file.getSize());
-        image.setGcsPath(uniqueFileName); // Store the unique name
-        image.setUploaderEmail(uploaderEmail);
+        image.setGcsPath(gcsPath);
+        image.setUploaderEmail(email);
         image.setThumbnailStatus(Image.ThumbnailStatus.PENDING);
 
-        Image savedImage = imageRepository.save(image);
-
-        // Step 4 is now handled by the Eventarc trigger listening to GCS.
-
-        return savedImage;
+        return imageRepository.save(image);
     }
 
-    public List<Image> getImagesByUploader(String uploaderEmail) {
-        return imageRepository.findByUploaderEmail(uploaderEmail);
+    @Transactional
+    public void deleteImageById(Long id, String email) {
+        Image image = imageRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Image not found with id: " + id));
+
+        if (!image.getUploaderEmail().equals(email)) {
+            throw new AccessDeniedException("User does not have permission to delete this image");
+        }
+
+        deleteFromGcs(image);
+        imageRepository.delete(image);
     }
-    
-    public Optional<Image> getImageByIdAndUploader(Long id, String uploaderEmail) {
-        return imageRepository.findByIdAndUploaderEmail(id, uploaderEmail);
+
+    @Transactional
+    public void deleteAllImagesByUser(String email) {
+        List<Image> images = imageRepository.findAllByUploaderEmail(email);
+        if (images.isEmpty()) {
+            return;
+        }
+
+        images.forEach(this::deleteFromGcs);
+        imageRepository.deleteAll(images);
+    }
+
+    private void deleteFromGcs(Image image) {
+        // Delete raw image
+        BlobId rawBlobId = BlobId.of(rawImagesBucket, image.getGcsPath());
+        storage.delete(rawBlobId);
+
+        // Delete thumbnail if it exists
+        if (image.getThumbnailStatus() == Image.ThumbnailStatus.DONE) {
+            // The thumbnail path is derived from the raw path
+            String thumbnailGcsPath = "thumb-" + image.getGcsPath();
+            BlobId thumbnailBlobId = BlobId.of(thumbnailsBucket, thumbnailGcsPath);
+            storage.delete(thumbnailBlobId);
+        }
     }
 }
