@@ -2,12 +2,12 @@ package com.cdc.ots_image_service.service;
 
 import com.cdc.ots_image_service.entity.Image;
 import com.cdc.ots_image_service.repository.ImageRepository;
+import com.cdc.ots_image_service.exception.ImageAccessDeniedException;
+import com.cdc.ots_image_service.exception.ImageNotFoundException;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,10 +56,10 @@ public class ImageService {
     @Transactional
     public void deleteImageById(Long id, String email) {
         Image image = imageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Image not found with id: " + id));
+                .orElseThrow(() -> new ImageNotFoundException("error.image.notfound", id));
 
         if (!image.getUploaderEmail().equals(email)) {
-            throw new AccessDeniedException("User does not have permission to delete this image");
+            throw new ImageAccessDeniedException("error.image.accessdenied");
         }
 
         deleteFromGcs(image);
