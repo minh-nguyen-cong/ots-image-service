@@ -8,6 +8,7 @@ substitutions:
   _DB_PASSWORD_SECRET: cdc-online-thumbnail-service-db-password
   _JWT_SECRET_NAME: cdc-online-thumbnail-service-jwt-secret-prod
   _GCS_RAW_IMAGES_BUCKET_NAME: cdc-online-thumbnail-service-bucket-raw-images
+  _GCS_THUMBNAILS_BUCKET_NAME: cdc-online-thumbnail-service-bucket-thumbnails
   _DB_MAX_POOL_SIZE: "5"
 
 steps:
@@ -43,7 +44,8 @@ steps:
         '--set-env-vars', 'SPRING_PROFILES_ACTIVE=prod',
         '--set-env-vars', 'SPRING_CLOUD_GCP_SQL_DATABASE_NAME=${_DB_NAME}',
         '--set-env-vars', 'SPRING_CLOUD_GCP_SQL_INSTANCE_CONNECTION_NAME=${_CLOUDSQL_INSTANCE}',
-        '--set-env-vars', 'GCS_BUCKET_RAW_IMAGES=${_GCS_RAW_IMAGES_BUCKET_NAME}',
+        '--set-env-vars', 'gcs.bucket.raw-images=${_GCS_RAW_IMAGES_BUCKET_NAME}',
+        '--set-env-vars', 'gcs.bucket.thumbnails=${_GCS_THUMBNAILS_BUCKET_NAME}',
         '--set-env-vars', 'DB_MAX_POOL_SIZE=${_DB_MAX_POOL_SIZE}',
         '--set-secrets', 'DB_USERNAME=${_DB_USERNAME_SECRET}:latest',
         '--set-secrets', 'DB_PASSWORD=${_DB_PASSWORD_SECRET}:latest',
