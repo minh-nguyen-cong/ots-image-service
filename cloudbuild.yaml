@@ -39,6 +39,7 @@ steps:
         '--image', '${_IMAGE_NAME}',
         '--region', '${_REGION}',
         '--platform', 'managed',
+        '--ingress', 'internal-and-cloud-load-balancing', # Allow traffic only from the LB
         '--set-cloudsql-instances', '${_CLOUDSQL_INSTANCE}',
         '--set-env-vars', 'SPRING_PROFILES_ACTIVE=prod',
         '--set-env-vars', 'SPRING_CLOUD_GCP_SQL_DATABASE_NAME=${_DB_NAME}',
