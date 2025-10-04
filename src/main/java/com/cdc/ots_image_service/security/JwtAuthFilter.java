@@ -36,8 +36,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             // Create UserDetails on-the-fly without a database call
-            Long userId = jwtService.extractUserId(jwt);
-            UserDetails userDetails = new CustomUserDetails(userId, email);
+            UserDetails userDetails = new CustomUserDetails(email);
 
             // Validate token (signature is implicitly validated by extraction)
             if (!jwtService.isTokenExpired(jwt)) {

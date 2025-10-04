@@ -8,16 +8,10 @@ import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final Long id;
     private final String email;
 
-    public CustomUserDetails(Long id, String email) {
-        this.id = id;
+    public CustomUserDetails(String email) {
         this.email = email;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     @Override
