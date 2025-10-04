@@ -33,7 +33,10 @@ public class SecurityConfig {
         return http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated()) // All endpoints are protected
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow CORS preflight requests
+                        .anyRequest().authenticated() // All endpoints are protected
+                )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
                 .build();
