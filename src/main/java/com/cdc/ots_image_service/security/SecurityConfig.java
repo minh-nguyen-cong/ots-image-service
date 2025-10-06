@@ -12,8 +12,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.cdc.ots_image_service.security.JwtAuthFilter;
-
 import java.util.List;
 
 @Configuration
